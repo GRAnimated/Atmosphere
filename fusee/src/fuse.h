@@ -172,9 +172,10 @@ static inline volatile fuse_registers_t *get_fuse_regs(void) {
 static inline volatile fuse_chip_registers_t *get_fuse_chip_regs(void) {
     return (volatile fuse_chip_registers_t *)(0x7000F000 + 0x900);
 }
+
 #define FUSE_REGS       (get_fuse_regs())
 #define FUSE_CHIP_REGS  (get_fuse_chip_regs())
-
+#define retail_type     (((FUSE_CHIP_REGS->FUSE_RESERVED_ODM[4] >> 7) & 4) | (FUSE_CHIP_REGS->FUSE_RESERVED_ODM[4] & 3))
 void fuse_init(void);
 
 uint32_t fuse_hw_read(uint32_t addr);

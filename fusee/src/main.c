@@ -22,7 +22,6 @@ static void reset_using_pmc()
 
 int main(void) {
     u32 *lfb_base;
-    u32 *irom_to_print = (u32 *)0x115A00;
 
     nx_hwinit();
     display_init();
@@ -31,14 +30,7 @@ int main(void) {
     lfb_base = display_init_framebuffer();
     video_init(lfb_base);
 
-    puts_nl("                ");
-    puts_nl("                ");
-    puts_nl("                ");
-    puts_nl("                                             *     .--.");
-    puts_nl("                                                  / /  `");
-    puts_nl("                                 +               | |");
-    puts_nl("                                        '         \\ \\__,");
-    puts_nl("                                    *          +   '--'  *");
+
     puts_nl("                                        +   /\\ ");
     puts_nl("                           +              .'  '.   *");
     puts_nl("                                  *      /======\\      +");
@@ -60,11 +52,12 @@ int main(void) {
     puts_nl("                 \\ \\| | |  __// /\\__ \\\\ V  V /| | || (__| | | |  __/ (_| |");
     puts_nl("                  | |_|  \\___| | |___/ \\_/\\_/ |_|\\__\\___|_| |_|\\___|\\__,_|");
     puts_nl("                   \\_\\      /_/                                           ");
+    puts_nl(" + GRAnimated for editing the payload!");
 
     // Say hello.
     printk("\n\n\n");
-    printk(" Hello, NVIDIA & Nintendo!\n");
-    printk(" I'm running from the early-bootROM context.\n\n");
+    printk(" If you are seeing this,\n");
+    printk(" You have successfully started the exploit!\n\n");
 
     // Read the fuses.
 
@@ -78,14 +71,33 @@ int main(void) {
         FUSE_CHIP_REGS->FUSE_DEVICE_KEY
         );
 
-    // print some irom for fun
-    printk(" And here's a bit of your protected IROM (at %p):\n   ", irom_to_print);
-    print_hex(irom_to_print, 512);
-    printk("\n\n\n\n\n");
+    printk(" This unit's bootrom patch version is: %01x!\n\n",
+        FUSE_CHIP_REGS->FUSE_SOC_SPEEDO_1
+        );
+
+    printk(" This unit's burned fuse number is: %01x!\n\n",
+        FUSE_CHIP_REGS->FUSE_RESERVED_ODM[7]
+        );
+
+    printk(" This unit's configuration is: %01x!\n\n",
+        FUSE_CHIP_REGS->FUSE_RESERVED_ODM[4]
+        );
+
+    printk(" This SW config is: %08x!\n\n",
+        FUSE_CHIP_REGS->FUSE_RESERVED_SW
+        );
+
+    if (retail_type == 4) { /* Standard retail unit, IS_RETAIL | 0. */
+        printk(" This unit is a retail unit.\n\n");
+    } else if (retail_type == 3) { /* Standard dev unit, 0 | DEV_UNIT. */
+        printk(" This unit is a dev unit.\n\n");
+    }
 
     // credits
-    printk("                          vulnerability discovered & responsibly reported by @ktemkin\n");
-    printk("                                          Kate Temkin -- k@ktemkin.com\n");
+    printk(" vulnerability discovered & responsibly reported by @ktemkin\n");
+    printk(" Kate Temkin -- k@ktemkin.com\n");
+    printk(" script edited by @granimated\n");
+    printk(" GRAnimated -- https://youtube.com/granimated\n");
 
     // Wait for the power button, and then reset.
     while(btn_read() != BTN_POWER);
